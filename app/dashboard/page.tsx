@@ -22,7 +22,7 @@ export default async function DashboardPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-baseline gap-1.5">
             <span className="font-display text-xl font-bold text-text-primary">
-              Pulse
+              Zonely
             </span>
             <span className="h-1.5 w-1.5 rounded-full bg-forex" />
           </div>

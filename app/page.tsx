@@ -5,7 +5,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-base px-4 text-center">
       <div className="inline-flex items-baseline gap-2">
         <span className="font-display text-4xl font-bold text-text-primary">
-          Pulse
+          Zonely
         </span>
         <span className="h-2 w-2 rounded-full bg-forex" />
       </div>

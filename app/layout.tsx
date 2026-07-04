@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pulse | Market Dashboard",
+  title: "Zonely | Market Dashboard",
   description:
     "Daily FII/DII flows, index and forex levels, options OI, and high-impact news in one screen.",
 };

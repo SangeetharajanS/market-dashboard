@@ -15,7 +15,7 @@ export default function LoginPage() {
         <div className="mb-8 text-center">
           <div className="inline-flex items-baseline gap-1.5">
             <span className="font-display text-2xl font-bold text-text-primary">
-              Pulse
+              Zonely
             </span>
             <span className="h-1.5 w-1.5 rounded-full bg-forex" />
           </div>

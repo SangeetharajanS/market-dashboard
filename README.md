@@ -143,5 +143,3 @@ Adviser.
 - Per-user saved watchlists (Supabase already gives you a `users` table to
   build on)
 - Paid tier — Supabase + Stripe is a common, well-documented combination
-"# market-dashboard" 
-"# market-dashboard" 
