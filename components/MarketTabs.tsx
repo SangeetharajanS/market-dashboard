@@ -1,20 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   getIndianIndices,
   getForexInstruments,
   getOiSnapshots,
 } from "@/lib/mock-data";
 import InstrumentCard from "./InstrumentCard";
-import FiiDiiCard from "./FiiDiiCard";
 import OiCard from "./OiCard";
 import NewsList from "./NewsList";
 import EconCalendar from "./EconCalendar";
 
 type Tab = "india" | "forex";
 
-export default function MarketTabs() {
+// FiiDiiCard fetches live data server-side (async Server Component), so it
+// can't be imported directly into this Client Component. Instead the parent
+// Server Component (app/dashboard/page.tsx) renders it and passes it in here
+// as a plain ReactNode slot.
+export default function MarketTabs({ fiiDiiCard }: { fiiDiiCard: ReactNode }) {
   const [tab, setTab] = useState<Tab>("india");
 
   const indianIndices = getIndianIndices();
@@ -67,7 +70,7 @@ export default function MarketTabs() {
           </section>
 
           <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <FiiDiiCard />
+            {fiiDiiCard}
             <NewsList tag="india" />
           </section>
         </div>

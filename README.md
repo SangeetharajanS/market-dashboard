@@ -1,4 +1,4 @@
-# Pulse — Market Dashboard
+# Zonely — Market Dashboard
 
 A daily dashboard for Indian markets (NIFTY, BANK NIFTY, SENSEX, FII/DII flows,
 options OI, levels) and forex/gold (XAUUSD, GBPUSD, NZDUSD, USDJPY, EURUSD,
@@ -18,7 +18,7 @@ in real data sources is the next step (see "Adding real data" below).
 Supabase gives you the database + secure login for free.
 
 1. Go to https://supabase.com and sign up (free tier).
-2. Click **New Project**. Pick any name and a database password (save it  -- Sangeeth@0501S
+2. Click **New Project**. Pick any name and a database password (save it
    somewhere — you won't need it day-to-day, but keep it safe).
 3. Once the project is created, go to **Project Settings → API**.
 4. Copy two values:

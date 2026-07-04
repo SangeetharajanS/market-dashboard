@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import TickerStrip from "@/components/TickerStrip";
 import MarketTabs from "@/components/MarketTabs";
+import FiiDiiCard from "@/components/FiiDiiCard";
 import { signOut } from "./actions";
 
 export default async function DashboardPage() {
@@ -43,7 +44,7 @@ export default async function DashboardPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-        <MarketTabs />
+        <MarketTabs fiiDiiCard={<FiiDiiCard />} />
 
         <p className="mt-10 border-t border-border-soft pt-4 text-xs text-text-muted">
           For informational and educational purposes only. Not investment
