@@ -144,3 +144,4 @@ Adviser.
   build on)
 - Paid tier — Supabase + Stripe is a common, well-documented combination
 "# market-dashboard" 
+"# market-dashboard" 
