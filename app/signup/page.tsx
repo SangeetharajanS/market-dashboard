@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { signup, type SignupState } from "./actions";
+import AuthBackground from "@/components/AuthBackground";
 
 const initialState: SignupState = { error: null, success: false };
 
@@ -11,8 +12,9 @@ export default function SignupPage() {
 
   if (state.success) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-base px-4">
-        <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-6 text-center">
+      <main className="relative flex min-h-screen items-center justify-center px-4">
+        <AuthBackground />
+        <div className="relative z-10 w-full max-w-sm rounded-lg border border-border bg-surface p-6 text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-up-soft text-up">
             ✓
           </div>
@@ -35,8 +37,9 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-base px-4">
-      <div className="w-full max-w-sm">
+    <main className="relative flex min-h-screen items-center justify-center px-4">
+      <AuthBackground />
+      <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 text-center">
           <div className="inline-flex items-baseline gap-1.5">
             <span className="font-display text-2xl font-bold text-text-primary">

@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { login, type AuthState } from "./actions";
+import AuthBackground from "@/components/AuthBackground";
 
 const initialState: AuthState = { error: null };
 
@@ -10,8 +11,9 @@ export default function LoginPage() {
   const [state, formAction, pending] = useActionState(login, initialState);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-base px-4">
-      <div className="w-full max-w-sm">
+    <main className="relative flex min-h-screen items-center justify-center px-4">
+      <AuthBackground />
+      <div className="relative z-10 w-full max-w-sm">
         <div className="mb-8 text-center">
           <div className="inline-flex items-baseline gap-1.5">
             <span className="font-display text-2xl font-bold text-text-primary">
