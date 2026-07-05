@@ -1,13 +1,25 @@
-import { getNews } from "@/lib/mock-data";
+import type { NewsItem } from "@/lib/mock-data";
 
-export default function NewsList({ tag }: { tag: "india" | "forex" }) {
-  const items = getNews().filter((n) => n.tag === tag);
-
+export default function NewsList({
+  tag,
+  items,
+  live,
+}: {
+  tag: "india" | "forex";
+  items: NewsItem[];
+  live: boolean;
+}) {
   return (
     <div className="rounded-lg border border-border bg-surface p-5">
-      <h3 className="font-display text-sm font-semibold text-text-primary">
-        {tag === "india" ? "Indian Market News" : "Forex & Global News"}
-      </h3>
+      <div className="flex items-center gap-1.5">
+        <h3 className="font-display text-sm font-semibold text-text-primary">
+          {tag === "india" ? "Indian Market News" : "Forex & Global News"}
+        </h3>
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${live ? "bg-up" : "bg-warn"}`}
+          title={live ? "Live" : "Sample data"}
+        />
+      </div>
       <ul className="mt-4 space-y-4">
         {items.map((item) => (
           <li key={item.id} className="border-t border-border-soft pt-3 first:border-t-0 first:pt-0">

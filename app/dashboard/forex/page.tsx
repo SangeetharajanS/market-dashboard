@@ -1,12 +1,16 @@
 import { getForexInstruments } from "@/lib/mock-data";
 import { withLiveQuotes } from "@/lib/data/quotes";
+import { getLiveNews } from "@/lib/data/news";
 import InstrumentCard from "@/components/InstrumentCard";
 import EconCalendar from "@/components/EconCalendar";
 import NewsList from "@/components/NewsList";
 import LiveLegend from "@/components/LiveLegend";
 
 export default async function ForexPage() {
-  const forexInstruments = await withLiveQuotes(getForexInstruments());
+  const [forexInstruments, { forex: forexNews }] = await Promise.all([
+    withLiveQuotes(getForexInstruments()),
+    getLiveNews(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -31,7 +35,7 @@ export default async function ForexPage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <EconCalendar />
-        <NewsList tag="forex" />
+        <NewsList tag="forex" items={forexNews.items} live={forexNews.live} />
       </div>
     </div>
   );

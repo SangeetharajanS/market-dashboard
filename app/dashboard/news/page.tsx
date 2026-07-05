@@ -1,6 +1,9 @@
 import NewsList from "@/components/NewsList";
+import { getLiveNews } from "@/lib/data/news";
 
-export default function NewsPage() {
+export default async function NewsPage() {
+  const { india, forex } = await getLiveNews();
+
   return (
     <div className="space-y-6">
       <div>
@@ -12,8 +15,8 @@ export default function NewsPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <NewsList tag="india" />
-        <NewsList tag="forex" />
+        <NewsList tag="india" items={india.items} live={india.live} />
+        <NewsList tag="forex" items={forex.items} live={forex.live} />
       </div>
     </div>
   );
