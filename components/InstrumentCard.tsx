@@ -15,11 +15,19 @@ export default function InstrumentCard({
     <div className="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-border-soft">
       <div className="flex items-start justify-between">
         <div>
-          <div
-            className="font-display text-sm font-semibold tracking-wide"
-            style={{ color: accentColor }}
-          >
-            {instrument.symbol}
+          <div className="flex items-center gap-1.5">
+            <span
+              className="font-display text-sm font-semibold tracking-wide"
+              style={{ color: accentColor }}
+            >
+              {instrument.symbol}
+            </span>
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                instrument.live ? "bg-up" : "bg-warn"
+              }`}
+              title={instrument.live ? "Live price" : "Sample price"}
+            />
           </div>
           <div className="mt-0.5 text-xs text-text-muted">{instrument.name}</div>
         </div>

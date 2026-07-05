@@ -1,9 +1,8 @@
-import { getIndianIndices, getForexInstruments } from "@/lib/mock-data";
+import type { Instrument } from "@/lib/mock-data";
 
-export default function TickerStrip() {
-  const items = [...getIndianIndices(), ...getForexInstruments()];
+export default function TickerStrip({ instruments }: { instruments: Instrument[] }) {
   // Duplicate the list so the marquee loop has no visible seam.
-  const doubled = [...items, ...items];
+  const doubled = [...instruments, ...instruments];
 
   return (
     <div className="overflow-hidden border-b border-border bg-surface">

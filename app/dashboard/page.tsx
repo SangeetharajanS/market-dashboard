@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getIndianIndices, getForexInstruments } from "@/lib/mock-data";
+import { withLiveQuotes } from "@/lib/data/quotes";
 import TickerStrip from "@/components/TickerStrip";
 import MarketTabs from "@/components/MarketTabs";
 import FiiDiiCard from "@/components/FiiDiiCard";
@@ -15,9 +17,16 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  // Fetched once here and passed down, so the ticker and the tab cards show
+  // the exact same numbers instead of racing separate fetches.
+  const [indianIndices, forexInstruments] = await Promise.all([
+    withLiveQuotes(getIndianIndices()),
+    withLiveQuotes(getForexInstruments()),
+  ]);
+
   return (
     <main className="min-h-screen bg-base">
-      <TickerStrip />
+      <TickerStrip instruments={[...indianIndices, ...forexInstruments]} />
 
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
@@ -44,12 +53,16 @@ export default async function DashboardPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-        <MarketTabs fiiDiiCard={<FiiDiiCard />} />
+        <MarketTabs
+          indianIndices={indianIndices}
+          forexInstruments={forexInstruments}
+          fiiDiiCard={<FiiDiiCard />}
+        />
 
         <p className="mt-10 border-t border-border-soft pt-4 text-xs text-text-muted">
           For informational and educational purposes only. Not investment
-          advice. Levels shown are sample data — live data sources will be
-          connected in a future update.
+          advice. Support/resistance levels are calculated pivot points from
+          the prior day's price action, not analyst calls.
         </p>
       </div>
     </main>

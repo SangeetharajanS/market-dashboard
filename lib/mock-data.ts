@@ -15,6 +15,7 @@ export type Instrument = {
   changePct: number;
   support: [number, number];
   resistance: [number, number];
+  live?: boolean;
 };
 
 export type OiSnapshot = {
