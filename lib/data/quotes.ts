@@ -24,7 +24,9 @@ export const YAHOO_SYMBOLS: Record<string, string> = {
   NIFTY: "^NSEI",
   BANKNIFTY: "^NSEBANK",
   SENSEX: "^BSESN",
-  XAUUSD: "XAUUSD=X",
+  // Yahoo has no "XAUUSD=X" spot symbol — GC=F (COMEX gold futures) is what
+  // it actually tracks, and it moves almost identically to spot gold.
+  XAUUSD: "GC=F",
   GBPUSD: "GBPUSD=X",
   NZDUSD: "NZDUSD=X",
   USDJPY: "USDJPY=X",
