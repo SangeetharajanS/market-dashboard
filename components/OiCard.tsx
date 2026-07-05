@@ -1,12 +1,24 @@
 import type { OiSnapshot } from "@/lib/mock-data";
 
-export default function OiCard({ snapshot }: { snapshot: OiSnapshot }) {
+export default function OiCard({
+  snapshot,
+  live,
+}: {
+  snapshot: OiSnapshot;
+  live?: boolean;
+}) {
   return (
     <div className="rounded-lg border border-border bg-surface p-5">
       <div className="flex items-start justify-between">
-        <h3 className="font-display text-sm font-semibold text-india">
-          {snapshot.symbol} Options
-        </h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="font-display text-sm font-semibold text-india">
+            {snapshot.symbol} Options
+          </h3>
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${live ? "bg-up" : "bg-warn"}`}
+            title={live ? "Live · NSE" : "Sample data"}
+          />
+        </div>
         <div className="text-right text-xs">
           <div className="text-text-muted">Expiry</div>
           <div className="font-data text-text-primary">{snapshot.expiry}</div>

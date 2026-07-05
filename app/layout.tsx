@@ -33,6 +33,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          // Runs before React hydrates so there's no flash of the wrong
+          // theme. Kept tiny and defensive — storage can be unavailable.
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('zonely-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >

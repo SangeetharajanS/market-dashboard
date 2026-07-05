@@ -27,6 +27,30 @@
   --color-warn: #f59e0b;
 }
 
+/* Light theme — applied when <html data-theme="light"> is set */
+[data-theme="light"] {
+  --color-base: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-border: #e2e5ea;
+  --color-border-soft: #edf0f3;
+
+  --color-text-primary: #171b1f;
+  --color-text-secondary: #565f6b;
+  --color-text-muted: #8993a1;
+
+  --color-india: #b9832a;
+  --color-india-soft: rgba(184, 131, 42, 0.1);
+  --color-forex: #0f9c8c;
+  --color-forex-soft: rgba(15, 156, 140, 0.1);
+
+  --color-up: #16a34a;
+  --color-up-soft: rgba(22, 163, 74, 0.1);
+  --color-down: #dc2626;
+  --color-down-soft: rgba(220, 38, 38, 0.1);
+  --color-warn: #b45309;
+}
+
 @theme inline {
   --color-base: var(--color-base);
   --color-surface: var(--color-surface);

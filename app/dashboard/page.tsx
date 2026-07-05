@@ -1,70 +1,82 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { getIndianIndices, getForexInstruments } from "@/lib/mock-data";
-import { withLiveQuotes } from "@/lib/data/quotes";
-import TickerStrip from "@/components/TickerStrip";
-import MarketTabs from "@/components/MarketTabs";
+import Link from "next/link";
+import { TrendingUp, Coins, Ruler, Landmark, Newspaper } from "lucide-react";
 import FiiDiiCard from "@/components/FiiDiiCard";
-import { signOut } from "./actions";
 
-export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+const LINKS = [
+  {
+    href: "/dashboard/indices",
+    label: "Indices",
+    desc: "NIFTY, Bank Nifty, Sensex + Options OI",
+    icon: TrendingUp,
+    accent: "india" as const,
+  },
+  {
+    href: "/dashboard/forex",
+    label: "Forex & Gold",
+    desc: "XAUUSD, GBPUSD, NZDUSD, USDJPY, EURUSD, BTCUSD",
+    icon: Coins,
+    accent: "forex" as const,
+  },
+  {
+    href: "/dashboard/levels",
+    label: "Levels",
+    desc: "Support & resistance for everything, one table",
+    icon: Ruler,
+  },
+  {
+    href: "/dashboard/fii-dii",
+    label: "FII / DII",
+    desc: "Daily institutional flows",
+    icon: Landmark,
+  },
+  {
+    href: "/dashboard/news",
+    label: "News",
+    desc: "Indian and forex news, kept separate",
+    icon: Newspaper,
+  },
+];
 
-  if (!user) {
-    redirect("/login");
-  }
+function accentColor(accent?: "india" | "forex") {
+  if (accent === "india") return "var(--color-india)";
+  if (accent === "forex") return "var(--color-forex)";
+  return "var(--color-text-primary)";
+}
 
-  // Fetched once here and passed down, so the ticker and the tab cards show
-  // the exact same numbers instead of racing separate fetches.
-  const [indianIndices, forexInstruments] = await Promise.all([
-    withLiveQuotes(getIndianIndices()),
-    withLiveQuotes(getForexInstruments()),
-  ]);
-
+export default function OverviewPage() {
   return (
-    <main className="min-h-screen bg-base">
-      <TickerStrip instruments={[...indianIndices, ...forexInstruments]} />
-
-      <header className="border-b border-border">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-display text-xl font-bold text-text-primary">
-              Zonely
-            </span>
-            <span className="h-1.5 w-1.5 rounded-full bg-forex" />
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="hidden text-sm text-text-secondary sm:inline">
-              {user.email}
-            </span>
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="rounded-md border border-border px-3 py-1.5 text-sm text-text-secondary transition-colors hover:border-down/40 hover:text-down"
-              >
-                Log out
-              </button>
-            </form>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-        <MarketTabs
-          indianIndices={indianIndices}
-          forexInstruments={forexInstruments}
-          fiiDiiCard={<FiiDiiCard />}
-        />
-
-        <p className="mt-10 border-t border-border-soft pt-4 text-xs text-text-muted">
-          For informational and educational purposes only. Not investment
-          advice. Support/resistance levels are calculated pivot points from
-          the prior day's price action, not analyst calls.
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-display text-lg font-semibold text-text-primary">
+          Welcome back
+        </h1>
+        <p className="mt-1 text-sm text-text-secondary">
+          Pick a section from the left, or jump in below.
         </p>
       </div>
-    </main>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {LINKS.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-border-soft"
+            >
+              <Icon size={18} style={{ color: accentColor(item.accent) }} />
+              <div className="mt-3 font-display text-sm font-semibold text-text-primary">
+                {item.label}
+              </div>
+              <div className="mt-1 text-xs text-text-secondary">{item.desc}</div>
+            </Link>
+          );
+        })}
+      </div>
+
+      <div className="max-w-xl">
+        <FiiDiiCard />
+      </div>
+    </div>
   );
 }
