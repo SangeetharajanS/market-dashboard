@@ -29,6 +29,12 @@ export default async function DashboardLayout({
     withLiveQuotes(getForexInstruments()),
   ]);
 
+  const updatedAt = new Date().toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Kolkata",
+  });
+
   return (
     <div className="flex min-h-screen bg-base">
       <Sidebar />
@@ -42,7 +48,9 @@ export default async function DashboardLayout({
               Zonely
             </span>
           </div>
-          <div className="hidden sm:block" />
+          <span className="hidden text-xs text-text-muted sm:inline">
+            Prices updated {updatedAt} IST
+          </span>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <span className="hidden text-sm text-text-secondary sm:inline">

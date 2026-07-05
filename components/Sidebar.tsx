@@ -29,13 +29,19 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`relative flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 active
                   ? "bg-border-soft"
                   : "text-text-secondary hover:bg-border-soft/60 hover:text-text-primary"
               }`}
               style={active ? { color: accentColor(item.accent) } : undefined}
             >
+              {active && (
+                <span
+                  className="absolute -left-3 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full"
+                  style={{ background: accentColor(item.accent) }}
+                />
+              )}
               <Icon size={16} />
               {item.label}
             </Link>
