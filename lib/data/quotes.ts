@@ -11,7 +11,7 @@ import type { Instrument } from "@/lib/mock-data";
 const YAHOO_CHART_URL = (symbol: string) =>
   `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(
     symbol
-  )}?range=5d&interval=1d`;
+  )}?range=3mo&interval=1d`;
 
 const HEADERS = {
   "User-Agent":
@@ -68,12 +68,90 @@ function round(n: number, decimals: number) {
 }
 
 /**
- * Fetches live price + pivot-point support/resistance for one symbol.
+ * Finds local swing highs/lows in a daily price series — a candle whose high
+ * is the highest (or low the lowest) within `window` days on either side.
+ * These are real chart structure: prior reaction points where price
+ * previously reversed, which is exactly what "support becomes resistance"
+ * relies on. Because we always re-rank them against the *current* price
+ * rather than hardcoding a side, a broken support automatically starts
+ * showing up as resistance once price is below it, and vice versa.
+ */
+function findSwingLevels(
+  high: (number | null)[],
+  low: (number | null)[],
+  window = 2
+): { highs: number[]; lows: number[] } {
+  const highs: number[] = [];
+  const lows: number[] = [];
+
+  for (let i = window; i < high.length - window; i++) {
+    const h = high[i];
+    const l = low[i];
+    if (typeof h === "number") {
+      let isSwingHigh = true;
+      for (let j = i - window; j <= i + window; j++) {
+        if (j === i) continue;
+        const other = high[j];
+        if (typeof other === "number" && other > h) {
+          isSwingHigh = false;
+          break;
+        }
+      }
+      if (isSwingHigh) highs.push(h);
+    }
+    if (typeof l === "number") {
+      let isSwingLow = true;
+      for (let j = i - window; j <= i + window; j++) {
+        if (j === i) continue;
+        const other = low[j];
+        if (typeof other === "number" && other < l) {
+          isSwingLow = false;
+          break;
+        }
+      }
+      if (isSwingLow) lows.push(l);
+    }
+  }
+
+  return { highs, lows };
+}
+
+/**
+ * Picks the nearest two swing levels on the correct side of the current
+ * price, deduplicating levels that are essentially the same zone.
+ */
+function nearestTwo(
+  levels: number[],
+  price: number,
+  side: "above" | "below"
+): number[] {
+  const filtered = levels.filter((v) =>
+    side === "above" ? v > price : v < price
+  );
+  const sorted = filtered.sort((a, b) =>
+    side === "above" ? a - b : b - a
+  );
+
+  const picked: number[] = [];
+  for (const v of sorted) {
+    const tooClose = picked.some(
+      (p) => Math.abs(v - p) / price < 0.0015 // within ~0.15% counts as the same zone
+    );
+    if (!tooClose) picked.push(v);
+    if (picked.length === 2) break;
+  }
+  return picked;
+}
+
+/**
+ * Fetches live price + swing-structure support/resistance for one symbol.
  * Throws on any failure — callers fall back to sample data per-instrument.
  */
 async function fetchLiveQuote(
   yahooSymbol: string
-): Promise<Pick<Instrument, "ltp" | "change" | "changePct" | "support" | "resistance">> {
+): Promise<
+  Pick<Instrument, "ltp" | "change" | "changePct" | "support" | "resistance" | "srMethod">
+> {
   const res = await fetch(YAHOO_CHART_URL(yahooSymbol), {
     headers: HEADERS,
     next: { revalidate: 60 },
@@ -99,39 +177,36 @@ async function fetchLiveQuote(
   const change = ltp - prevClose;
   const changePct = (change / prevClose) * 100;
 
-  // Use the most recent *complete* prior day's OHLC for the pivot calc —
+  // Use the most recent *complete* prior day's close for change/changePct —
   // the last entry in the daily series can be today's still-forming candle.
-  const { high, low, close } = result.indicators.quote[0];
-  const priorIdx = high.length >= 2 ? high.length - 2 : high.length - 1;
-  const pHigh = high[priorIdx];
-  const pLow = low[priorIdx];
-  const pClose = close[priorIdx];
+  const { high, low } = result.indicators.quote[0];
 
-  let support: [number, number] = [
-    round(ltp * 0.99, decimals),
-    round(ltp * 0.98, decimals),
-  ];
-  let resistance: [number, number] = [
-    round(ltp * 1.01, decimals),
-    round(ltp * 1.02, decimals),
-  ];
+  const { highs, lows } = findSwingLevels(high, low);
+  let resistance = nearestTwo(highs, ltp, "above");
+  let support = nearestTwo(lows, ltp, "below");
 
-  if (typeof pHigh === "number" && typeof pLow === "number" && typeof pClose === "number") {
-    const pivot = (pHigh + pLow + pClose) / 3;
-    const r1 = 2 * pivot - pLow;
-    const r2 = pivot + (pHigh - pLow);
-    const s1 = 2 * pivot - pHigh;
-    const s2 = pivot - (pHigh - pLow);
-    support = [round(s1, decimals), round(s2, decimals)];
-    resistance = [round(r1, decimals), round(r2, decimals)];
+  let srMethod: Instrument["srMethod"] = "structure";
+
+  // Fall back to a simple percentage offset only if there isn't enough
+  // price history to find real structure (e.g. a very newly listed
+  // instrument) — this guarantees the UI always has two levels on each
+  // side, and they're still guaranteed to sit on the correct side of price.
+  if (resistance.length < 2 || support.length < 2) {
+    srMethod = "pivot";
+    resistance = [round(ltp * 1.01, decimals), round(ltp * 1.02, decimals)];
+    support = [round(ltp * 0.99, decimals), round(ltp * 0.98, decimals)];
+  } else {
+    resistance = resistance.map((v) => round(v, decimals));
+    support = support.map((v) => round(v, decimals));
   }
 
   return {
     ltp: round(ltp, decimals),
     change: round(change, decimals),
     changePct: round(changePct, 2),
-    support,
-    resistance,
+    support: support as [number, number],
+    resistance: resistance as [number, number],
+    srMethod,
   };
 }
 

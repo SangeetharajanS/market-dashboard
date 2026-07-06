@@ -1,13 +1,25 @@
 import { getIndianIndices, getForexInstruments } from "@/lib/mock-data";
 import { withLiveQuotes } from "@/lib/data/quotes";
+import { getLiveOiSnapshots } from "@/lib/data/option-chain";
+import { withOiLevels } from "@/lib/data/enrich-indices";
 import LiveLegend from "@/components/LiveLegend";
 
 export default async function LevelsPage() {
-  const [indianIndices, forexInstruments] = await Promise.all([
-    withLiveQuotes(getIndianIndices()),
-    withLiveQuotes(getForexInstruments()),
-  ]);
-  const all = [...indianIndices, ...forexInstruments];
+  const [indianIndices, forexInstruments, { snapshots, live: oiLive }] =
+    await Promise.all([
+      withLiveQuotes(getIndianIndices()),
+      withLiveQuotes(getForexInstruments()),
+      getLiveOiSnapshots(),
+    ]);
+
+  const enrichedIndices = withOiLevels(indianIndices, snapshots, oiLive);
+  const all = [...enrichedIndices, ...forexInstruments];
+
+  const methodLabel: Record<string, string> = {
+    oi: "OI",
+    structure: "Swing",
+    pivot: "Est.",
+  };
 
   return (
     <div className="space-y-6">
@@ -19,7 +31,8 @@ export default async function LevelsPage() {
           <LiveLegend />
         </div>
         <p className="mt-1 text-sm text-text-secondary">
-          Pivot-point support and resistance across every instrument, in one
+          Support and resistance across every instrument — live option OI for
+          NIFTY/BANKNIFTY, recent swing structure for everything else, in one
           table.
         </p>
       </div>
@@ -34,6 +47,7 @@ export default async function LevelsPage() {
               <th className="px-4 py-3 font-normal">Support 1</th>
               <th className="px-4 py-3 font-normal">Resistance 1</th>
               <th className="px-4 py-3 font-normal">Resistance 2</th>
+              <th className="px-4 py-3 font-normal">Method</th>
             </tr>
           </thead>
           <tbody>
@@ -72,6 +86,9 @@ export default async function LevelsPage() {
                   </td>
                   <td className="px-4 py-3 font-data text-down/70">
                     {fmt(inst.resistance[1])}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-text-muted">
+                    {inst.srMethod ? methodLabel[inst.srMethod] : "—"}
                   </td>
                 </tr>
               );

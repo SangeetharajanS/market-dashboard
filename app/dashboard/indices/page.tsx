@@ -1,6 +1,7 @@
 import { getIndianIndices } from "@/lib/mock-data";
 import { withLiveQuotes } from "@/lib/data/quotes";
 import { getLiveOiSnapshots } from "@/lib/data/option-chain";
+import { withOiLevels } from "@/lib/data/enrich-indices";
 import InstrumentCard from "@/components/InstrumentCard";
 import OiCard from "@/components/OiCard";
 import LiveLegend from "@/components/LiveLegend";
@@ -10,6 +11,8 @@ export default async function IndicesPage() {
     withLiveQuotes(getIndianIndices()),
     getLiveOiSnapshots(),
   ]);
+
+  const enrichedIndices = withOiLevels(indianIndices, snapshots, oiLive);
 
   return (
     <div className="space-y-6">
@@ -21,13 +24,14 @@ export default async function IndicesPage() {
           <LiveLegend />
         </div>
         <p className="mt-1 text-sm text-text-secondary">
-          NIFTY 50, Bank Nifty, and Sensex — live price with pivot-point
-          support/resistance.
+          NIFTY 50, Bank Nifty, and Sensex — live price. NIFTY/BANKNIFTY
+          support &amp; resistance come from option OI when available;
+          Sensex uses recent swing structure.
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {indianIndices.map((inst) => (
+        {enrichedIndices.map((inst) => (
           <InstrumentCard key={inst.symbol} instrument={inst} accent="india" />
         ))}
       </div>

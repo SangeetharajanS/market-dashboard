@@ -30,6 +30,7 @@ type NseOptionChainResponse = {
   records: {
     expiryDates: string[];
     data: NseOptionRow[];
+    underlyingValue?: number;
   };
 };
 
@@ -76,7 +77,7 @@ async function fetchOptionChainFor(
   }
 
   const json = (await res.json()) as NseOptionChainResponse;
-  const { expiryDates, data } = json.records;
+  const { expiryDates, data, underlyingValue } = json.records;
 
   if (!expiryDates?.length || !data?.length) {
     throw new Error(`Unexpected option chain shape for ${symbol}`);
@@ -123,6 +124,37 @@ async function fetchOptionChainFor(
     }
   }
 
+  // OI-based support/resistance: the standard method F&O traders use.
+  // Resistance = the strikes AT OR ABOVE spot with the heaviest Call OI
+  // (writers defending that level). Support = strikes AT OR BELOW spot with
+  // the heaviest Put OI. This is anchored to spot, so it can never land on
+  // the wrong side of the current price the way a fixed prior-day pivot can.
+  let oiSupport: [number, number] | undefined;
+  let oiResistance: [number, number] | undefined;
+
+  if (typeof underlyingValue === "number") {
+    const callsAboveSpot = rows
+      .filter((r) => r.CE && r.strikePrice >= underlyingValue)
+      .sort((a, b) => b.CE!.openInterest - a.CE!.openInterest)
+      .slice(0, 2)
+      .map((r) => r.strikePrice)
+      .sort((a, b) => a - b); // nearest to spot first
+
+    const putsBelowSpot = rows
+      .filter((r) => r.PE && r.strikePrice <= underlyingValue)
+      .sort((a, b) => b.PE!.openInterest - a.PE!.openInterest)
+      .slice(0, 2)
+      .map((r) => r.strikePrice)
+      .sort((a, b) => b - a); // nearest to spot first
+
+    if (callsAboveSpot.length === 2) {
+      oiResistance = [callsAboveSpot[0], callsAboveSpot[1]];
+    }
+    if (putsBelowSpot.length === 2) {
+      oiSupport = [putsBelowSpot[0], putsBelowSpot[1]];
+    }
+  }
+
   return {
     symbol,
     expiry: nearestExpiry,
@@ -131,6 +163,8 @@ async function fetchOptionChainFor(
     maxPain,
     topCallOi,
     topPutOi,
+    oiSupport,
+    oiResistance,
   };
 }
 

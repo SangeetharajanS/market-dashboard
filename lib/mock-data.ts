@@ -16,6 +16,7 @@ export type Instrument = {
   support: [number, number];
   resistance: [number, number];
   live?: boolean;
+  srMethod?: "oi" | "structure" | "pivot";
 };
 
 export type OiSnapshot = {
@@ -26,6 +27,11 @@ export type OiSnapshot = {
   maxPain: number;
   topCallOi: { strike: number; oi: string }[];
   topPutOi: { strike: number; oi: string }[];
+  // Support/resistance derived from where Call/Put OI actually concentrates
+  // near the current spot price — the standard method F&O traders use.
+  // Undefined when the underlying spot value wasn't available to anchor it.
+  oiSupport?: [number, number];
+  oiResistance?: [number, number];
 };
 
 export type FiiDiiRow = {

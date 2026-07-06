@@ -23,7 +23,7 @@ export default async function ForexPage() {
         </div>
         <p className="mt-1 text-sm text-text-secondary">
           XAUUSD, GBPUSD, NZDUSD, USDJPY, EURUSD, BTCUSD — live price with
-          pivot-point support/resistance.
+          swing-structure support/resistance.
         </p>
       </div>
 
@@ -32,6 +32,12 @@ export default async function ForexPage() {
           <InstrumentCard key={inst.symbol} instrument={inst} accent="forex" />
         ))}
       </div>
+
+      <p className="text-xs text-text-muted">
+        Support/resistance are recent swing highs/lows from price history, not
+        a volume profile — spot forex has no centralized traded volume to
+        compute one from for free.
+      </p>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <EconCalendar />

@@ -58,22 +58,43 @@ export default function InstrumentCard({
         <div>
           <div className="text-text-muted">Support</div>
           <div className="mt-1 font-data text-up">
-            {instrument.support[0].toLocaleString("en-IN")}
+            {instrument.support[0].toLocaleString("en-IN", {
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+            })}
           </div>
           <div className="font-data text-up/70">
-            {instrument.support[1].toLocaleString("en-IN")}
+            {instrument.support[1].toLocaleString("en-IN", {
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+            })}
           </div>
         </div>
         <div>
           <div className="text-text-muted">Resistance</div>
           <div className="mt-1 font-data text-down">
-            {instrument.resistance[0].toLocaleString("en-IN")}
+            {instrument.resistance[0].toLocaleString("en-IN", {
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+            })}
           </div>
           <div className="font-data text-down/70">
-            {instrument.resistance[1].toLocaleString("en-IN")}
+            {instrument.resistance[1].toLocaleString("en-IN", {
+              minimumFractionDigits: decimals,
+              maximumFractionDigits: decimals,
+            })}
           </div>
         </div>
       </div>
+      {instrument.srMethod && (
+        <div className="mt-2 text-[10px] text-text-muted">
+          {instrument.srMethod === "oi"
+            ? "Levels from live option OI"
+            : instrument.srMethod === "structure"
+              ? "Levels from recent swing structure"
+              : "Levels from a simple % offset (limited history)"}
+        </div>
+      )}
     </div>
   );
 }

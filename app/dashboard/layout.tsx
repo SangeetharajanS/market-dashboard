@@ -73,8 +73,9 @@ export default async function DashboardLayout({
 
         <p className="mx-auto w-full max-w-6xl border-t border-border-soft px-4 py-4 text-xs text-text-muted sm:px-6">
           For informational and educational purposes only. Not investment
-          advice. Support/resistance levels are calculated pivot points from
-          the prior day's price action, not analyst calls.
+          advice. Support/resistance levels are derived from option OI or
+          recent swing structure, not analyst calls, and can lag fast-moving
+          markets.
         </p>
       </div>
     </div>
