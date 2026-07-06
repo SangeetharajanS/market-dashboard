@@ -17,7 +17,7 @@ export default async function LevelsPage() {
 
   const methodLabel: Record<string, string> = {
     oi: "OI",
-    structure: "Swing",
+    structure: "Technical",
     pivot: "Est.",
   };
 
@@ -32,8 +32,8 @@ export default async function LevelsPage() {
         </div>
         <p className="mt-1 text-sm text-text-secondary">
           Support and resistance across every instrument — live option OI for
-          NIFTY/BANKNIFTY, recent swing structure for everything else, in one
-          table.
+          NIFTY/BANKNIFTY, and a mix of pivot points, prior-day range, and
+          swing highs/lows for everything else.
         </p>
       </div>
 

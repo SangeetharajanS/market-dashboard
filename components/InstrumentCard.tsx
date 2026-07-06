@@ -91,7 +91,7 @@ export default function InstrumentCard({
           {instrument.srMethod === "oi"
             ? "Levels from live option OI"
             : instrument.srMethod === "structure"
-              ? "Levels from recent swing structure"
+              ? "Levels from pivot points, prior-day range & swing highs/lows"
               : "Levels from a simple % offset (limited history)"}
         </div>
       )}

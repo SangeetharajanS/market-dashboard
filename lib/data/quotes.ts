@@ -117,8 +117,32 @@ function findSwingLevels(
 }
 
 /**
- * Picks the nearest two swing levels on the correct side of the current
- * price, deduplicating levels that are essentially the same zone.
+ * Classic daily pivot points (P, R1-R3, S1-S3) from the prior day's OHLC.
+ * This is the single most widely used reference level among retail traders
+ * of every style — day traders, scalpers, and positional traders alike —
+ * not something specific to "swing trading". Extended to R3/S3 so there's
+ * still a familiar-style candidate on a strong trend day, before falling
+ * back to swing structure or previous day's high/low.
+ */
+function classicPivots(pHigh: number, pLow: number, pClose: number) {
+  const p = (pHigh + pLow + pClose) / 3;
+  const range = pHigh - pLow;
+  return {
+    r1: 2 * p - pLow,
+    r2: p + range,
+    r3: pHigh + 2 * (p - pLow),
+    s1: 2 * p - pHigh,
+    s2: p - range,
+    s3: pLow - 2 * (pHigh - p),
+  };
+}
+
+/**
+ * Picks the nearest two levels on the correct side of the current price from
+ * a pool of candidates, deduplicating levels that are essentially the same
+ * zone. Because the candidate pool can mix pivot points, previous day's
+ * high/low, and swing highs/lows, this naturally picks whichever source is
+ * actually closest and relevant right now — not one fixed method.
  */
 function nearestTwo(
   levels: number[],
@@ -144,7 +168,12 @@ function nearestTwo(
 }
 
 /**
- * Fetches live price + swing-structure support/resistance for one symbol.
+ * Fetches live price + support/resistance for one symbol. Levels are picked
+ * from a merged pool of classic pivot points, the previous day's high/low,
+ * and recent swing highs/lows — whichever candidates are actually nearest
+ * and valid (on the correct side of price) win. This is deliberately not
+ * "swing trading" specific; these are the reference levels day traders,
+ * scalpers, and positional traders all commonly watch.
  * Throws on any failure — callers fall back to sample data per-instrument.
  */
 async function fetchLiveQuote(
@@ -177,18 +206,47 @@ async function fetchLiveQuote(
   const change = ltp - prevClose;
   const changePct = (change / prevClose) * 100;
 
-  // Use the most recent *complete* prior day's close for change/changePct —
-  // the last entry in the daily series can be today's still-forming candle.
-  const { high, low } = result.indicators.quote[0];
+  const { high, low, close } = result.indicators.quote[0];
 
-  const { highs, lows } = findSwingLevels(high, low);
-  let resistance = nearestTwo(highs, ltp, "above");
-  let support = nearestTwo(lows, ltp, "below");
+  // "Standard" pool — classic pivots + previous day's high/low. This is
+  // what most traders actually recognize, and gets priority.
+  const standardHighs: number[] = [];
+  const standardLows: number[] = [];
 
-  let srMethod: Instrument["srMethod"] = "structure";
+  const priorIdx = high.length >= 2 ? high.length - 2 : high.length - 1;
+  const pHigh = high[priorIdx];
+  const pLow = low[priorIdx];
+  const pClose = close[priorIdx];
+
+  if (typeof pHigh === "number" && typeof pLow === "number") {
+    standardHighs.push(pHigh);
+    standardLows.push(pLow);
+  }
+  if (typeof pHigh === "number" && typeof pLow === "number" && typeof pClose === "number") {
+    const { r1, r2, r3, s1, s2, s3 } = classicPivots(pHigh, pLow, pClose);
+    standardHighs.push(r1, r2, r3);
+    standardLows.push(s1, s2, s3);
+  }
+
+  // "Swing" pool — only used to fill in gaps the standard pool can't cover,
+  // e.g. price has run past every classic level on a strong trend day.
+  const { highs: swingHighs, lows: swingLows } = findSwingLevels(high, low);
+
+  let resistance = nearestTwo(standardHighs, ltp, "above");
+  let support = nearestTwo(standardLows, ltp, "below");
+  let srMethod: Instrument["srMethod"] = "structure"; // "classic pivots" — kept as "structure" to match the existing type
+
+  if (resistance.length < 2) {
+    resistance = nearestTwo([...standardHighs, ...swingHighs], ltp, "above");
+    if (resistance.length) srMethod = "structure";
+  }
+  if (support.length < 2) {
+    support = nearestTwo([...standardLows, ...swingLows], ltp, "below");
+    if (support.length) srMethod = "structure";
+  }
 
   // Fall back to a simple percentage offset only if there isn't enough
-  // price history to find real structure (e.g. a very newly listed
+  // price history for any of the above (e.g. a very newly listed
   // instrument) — this guarantees the UI always has two levels on each
   // side, and they're still guaranteed to sit on the correct side of price.
   if (resistance.length < 2 || support.length < 2) {

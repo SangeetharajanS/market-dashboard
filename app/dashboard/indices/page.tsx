@@ -26,7 +26,8 @@ export default async function IndicesPage() {
         <p className="mt-1 text-sm text-text-secondary">
           NIFTY 50, Bank Nifty, and Sensex — live price. NIFTY/BANKNIFTY
           support &amp; resistance come from option OI when available;
-          Sensex uses recent swing structure.
+          Sensex combines pivot points, prior-day range, and swing
+          highs/lows.
         </p>
       </div>
 
